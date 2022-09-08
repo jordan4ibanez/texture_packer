@@ -1,98 +1,104 @@
 module packer.skyline_packer;
 
-use crate::{frame::Frame, packer::Packer, rect::Rect, texture_packer_config::TexturePackerConfig};
-use std::cmp::max;
+import std.typecons: Tuple, tuple;
+import rect;
+import texture_packer_config;
 
 struct Skyline {
-    pub x: u32,
-    pub y: u32,
-    pub w: u32,
-}
+    uint x = 0;
+    uint y = 0;
+    uint w = 0;
 
-impl Skyline {
-    #[inline(always)]
-    pub fn left(&self) -> u32 {
-        self.x
+    pragma(inline)
+    uint left() {
+        return this.x;
     }
 
-    #[inline(always)]
-    pub fn right(&self) -> u32 {
-        self.x + self.w - 1
+    pragma(inline)
+    uint right() {
+        return this.x + this.w - 1;
     }
 }
 
-pub struct SkylinePacker {
-    config: TexturePackerConfig,
-    border: Rect,
+struct SkylinePacker {
+    TexturePackerConfig config;
+    Rect border;
 
     // the skylines are sorted by their `x` position
-    skylines: Vec<Skyline>,
-}
+    Skyline[] skylines;
 
-impl SkylinePacker {
-    pub fn new(config: TexturePackerConfig) -> Self {
-        let skylines = vec![Skyline {
-            x: 0,
-            y: 0,
-            w: config.max_width,
-        }];
+    this(TexturePackerConfig config) {
+        skylines = new Skyline[0];
 
-        SkylinePacker {
-            config,
-            border: Rect::new(0, 0, config.max_width, config.max_height),
-            skylines,
-        }
+        skylines ~= Skyline(
+            0,
+            0,
+            config.max_width,
+        );
+
+        border = Rect(0, 0, config.max_width, config.max_height);
     }
 
     // return `rect` if rectangle (w, h) can fit the skyline started at `i`
-    fn can_put(&self, mut i: usize, w: u32, h: u32) -> Option<Rect> {
-        let mut rect = Rect::new(self.skylines[i].x, 0, w, h);
-        let mut width_left = rect.w;
-        loop {
-            rect.y = max(rect.y, self.skylines[i].y);
+    Rect can_put(ref uint i, uint w, uint h) {
+
+        Rect rect = Rect(this.skylines[i].x, 0, w, h);
+
+        uint width_left = rect.w;
+
+        while(true) {
+            rect.y = max(rect.y, this.skylines[i].y);
             // the source rect is too large
-            if !self.border.contains(&rect) {
-                return None;
+            if (!this.border.contains(rect)) {
+                return Rect();
             }
-            if self.skylines[i].w >= width_left {
-                return Some(rect);
+            if (this.skylines[i].w >= width_left) {
+                return rect;
             }
-            width_left -= self.skylines[i].w;
+            width_left -= this.skylines[i].w;
             i += 1;
-            assert!(i < self.skylines.len());
+            assert(i < this.skylines.len());
         }
     }
 
-    fn find_skyline(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
-        let mut bottom = std::u32::MAX;
-        let mut width = std::u32::MAX;
-        let mut index = None;
-        let mut rect = Rect::new(0, 0, 0, 0);
+    Tuple!(uint, Rect) find_skyline(uint w, uint h) {
+        uint bottom = uint.max;
+        uint width = uint.max;
+        uint index = 0;
+        Rect rect;
+
+        Rect r;
 
         // keep the `bottom` and `width` as small as possible
-        for i in 0..self.skylines.len() {
-            if let Some(r) = self.can_put(i, w, h) {
-                if r.bottom() < bottom || (r.bottom() == bottom && self.skylines[i].w < width) {
+        for (uint i = 0; i < this.skylines.length(); i++) {
+            
+            r = this.can_put(i, h, w);
+
+            if (r.exists) {
+                if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
                     bottom = r.bottom();
                     width = self.skylines[i].w;
-                    index = Some(i);
+                    index = i;
                     rect = r;
                 }
             }
 
-            if self.config.allow_rotation {
-                if let Some(r) = self.can_put(i, h, w) {
-                    if r.bottom() < bottom || (r.bottom() == bottom && self.skylines[i].w < width) {
+            if (this.config.allow_rotation) {
+
+                r = this.can_put(i, h, w);
+
+                if (r.exists) {
+                    if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
                         bottom = r.bottom();
-                        width = self.skylines[i].w;
-                        index = Some(i);
+                        width = this.skylines[i].w;
+                        index = i;
                         rect = r;
                     }
                 }
             }
         }
 
-        index.map(|x| (x, rect))
+        return Tuple!(index, rect);
     }
 
     fn split(&mut self, index: usize, rect: &Rect) {
