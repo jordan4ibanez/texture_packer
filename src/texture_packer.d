@@ -1,3 +1,5 @@
+module texture_packer;
+
 use crate::{
     frame::Frame,
     packer::{Packer, SkylinePacker},
