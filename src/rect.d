@@ -11,10 +11,16 @@ struct Rect {
     /// Height of the rectangle.
     uint h = 0;
 
+    bool exists = false;
+
 
     /// Create a new [Rect] based on a position and its width and height.
     this(uint x, uint y, uint w, uint h) {
-        this.x = x; this.y = y; this.w = w; this.h = h;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.exists = true;
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
