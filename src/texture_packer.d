@@ -6,6 +6,8 @@ import packer.skyline_packer;
 import rect;
 import texture_packer_config;
 import image;
+import std.typecons: tuple, Tuple;
+import std.array: insertInPlace;
 
 // pub type PackResult<T> = Result<T, PackError>;
 
@@ -14,60 +16,59 @@ enum PackError {
 }
 
 /// Packs textures into a single texture atlas.
-struct TexturePacker(K) {
-    TrueColorImage[K] textures;
-    Frame[K]frames;
-    TexturePacker packer;
+struct TexturePacker {
+    TrueColorImage[uint] textures;
+    Frame[uint] frames;
+    SkylinePacker packer;
     TexturePackerConfig config;
 
     /// Create a new packer using the skyline packing algorithm.
     static TexturePacker new_skyline(TexturePackerConfig config) {
         return TexturePacker(
-            new TrueColorImage[K],
-            new Frame[K],
+            new TrueColorImage[0],
+            new Frame[0],
             *new SkylinePacker(config),
             config
         );
     }
-}
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
-    TexturePacker<'a, T, K>
-{
     /// Check if the texture can be packed into this packer.
-    pub fn can_pack(&self, texture: &'a T) -> bool {
-        let rect = texture.into();
-        self.packer.can_pack(&rect)
+    bool can_pack(TrueColorImage texture) {
+        Rect rect = Rect(0,0,texture.width(), texture.height());
+        return this.packer.can_pack(rect);
     }
 
+
     /// Pack the `texture` into this packer, taking a reference of the texture object.
-    pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
-        let rect = texture.into();
-        if !self.packer.can_pack(&rect) {
-            return Err(PackError::TextureTooLargeToFitIntoAtlas);
+    void pack_ref(K key, ref TrueColorImage texture) {
+
+        Rect rect = Rect(0,0,texture.width(), texture.height());
+
+        if (!this.packer.can_pack(rect)) {
+            writeln("TextureTooLargeToFitIntoAtlas");
+            return;
         }
 
-        let (w, h) = (texture.width(), texture.height());
-        let source = if self.config.trim {
-            trim_texture(texture)
-        } else {
-            Rect::new(0, 0, w, h)
-        };
+        uint w = texture.width();
+        uint h = texture.height();
 
-        let texture = SubTexture::from_ref(texture, source);
-        let rect = (&texture).into();
-        if let Some(mut frame) = self.packer.pack(key.clone(), &rect) {
-            frame.frame.x += self.config.border_padding;
-            frame.frame.y += self.config.border_padding;
-            frame.trimmed = self.config.trim;
-            frame.source = source;
-            frame.source.w = w;
-            frame.source.h = h;
-            self.frames.insert(key.clone(), frame);
-        }
+        Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
 
-        self.textures.insert(key, texture);
-        Ok(())
+        this.packer.pack(key, rect);
+
+        Frame frame = Frame();
+        
+        frame.frame.x += this.config.border_padding;
+        frame.frame.y += this.config.border_padding;
+        frame.trimmed = this.config.trim;
+        frame.source = source;
+        frame.source.w = w;
+        frame.source.h = h;
+
+        this.frames.insertInPlace(key, frame);
+
+        this.textures.insertInPlace(key, texture);
+
     }
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
