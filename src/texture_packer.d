@@ -17,16 +17,16 @@ enum PackError {
 
 /// Packs textures into a single texture atlas.
 struct TexturePacker {
-    TrueColorImage[uint] textures;
-    Frame[uint] frames;
+    TrueColorImage[string] textures;
+    Frame[string] frames;
     SkylinePacker packer;
     TexturePackerConfig config;
 
     /// Create a new packer using the skyline packing algorithm.
     static TexturePacker new_skyline(TexturePackerConfig config) {
         return TexturePacker(
-            new TrueColorImage[0],
-            new Frame[0],
+            new TrueColorImage[string],
+            new Frame[string],
             *new SkylinePacker(config),
             config
         );
@@ -40,7 +40,7 @@ struct TexturePacker {
 
 
     /// Pack the `texture` into this packer, taking a reference of the texture object.
-    void pack_ref(uint key, ref TrueColorImage texture) {
+    void pack_ref(string key, ref TrueColorImage texture) {
 
         Rect rect = Rect(0,0,texture.width(), texture.height());
 
@@ -68,7 +68,7 @@ struct TexturePacker {
     }
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
-    void pack_own(uint key, TrueColorImage texture) {
+    void pack_own(string key, TrueColorImage texture) {
 
         Rect rect = Rect(0,0,texture.width(), texture.height());
 
@@ -94,85 +94,65 @@ struct TexturePacker {
     }
 
     /// Get the backing mapping from strings to frames.
-    pub fn get_frames(&self) -> &HashMap<K, Frame<K>> {
-        &self.frames
+    Frame[string] get_frames() {
+        return this.frames;
     }
 
     /// Acquire a frame by its name.
-    pub fn get_frame(&self, key: &K) -> Option<&Frame<K>> {
-        if let Some(frame) = self.frames.get(key) {
-            Some(frame)
-        } else {
-            None
-        }
+   Frame get_frame(string key) {
+        return this.frames[key];
     }
 
     /// Get the frame that overlaps with a specified coordinate.
-    fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame<K>> {
-        let extrusion = self.config.texture_extrusion;
+    Frame get_frame_at(uint x, uint y) {
 
-        for (_, frame) in self.frames.iter() {
-            let mut rect = frame.frame;
+        uint extrusion = this.config.texture_extrusion;
 
-            rect.x = rect.x.saturating_sub(extrusion);
-            rect.y = rect.y.saturating_sub(extrusion);
+        foreach (Frame frame; this.frames) {
+
+            Rect rect = frame.frame;
+
+            rect.x = rect.x - extrusion;
+            rect.y = rect.y - extrusion;
 
             rect.w += extrusion * 2;
             rect.h += extrusion * 2;
 
-            if rect.contains_point(x, y) {
-                return Some(frame);
-            }
-        }
-        None
-    }
-}
-
-impl<'a, Pix, T: Clone, K: Clone + Eq + Hash> Texture for TexturePacker<'a, T, K>
-where
-    Pix: Pixel,
-    T: Texture<Pixel = Pix>,
-{
-    type Pixel = Pix;
-
-    fn width(&self) -> u32 {
-        let mut right = None;
-
-        for (_, frame) in self.frames.iter() {
-            if let Some(r) = right {
-                if frame.frame.right() > r {
-                    right = Some(frame.frame.right());
-                }
-            } else {
-                right = Some(frame.frame.right());
+            if (rect.contains_point(x, y)) {
+                return frame;
             }
         }
 
-        if let Some(right) = right {
-            right + 1 + self.config.border_padding
-        } else {
-            0
-        }
+        // Return nothing
+        return Frame();
     }
 
-    fn height(&self) -> u32 {
-        let mut bottom = None;
+    Tuple!(bool, uint) width() {
+        uint right = 0;
+        bool goodToGo = false;
 
-        for (_, frame) in self.frames.iter() {
-            if let Some(b) = bottom {
-                if frame.frame.bottom() > b {
-                    bottom = Some(frame.frame.bottom());
-                }
-            } else {
-                bottom = Some(frame.frame.bottom());
+        foreach (Frame frame; this.frames){
+            if (frame.frame.right() > right) {
+                right = frame.frame.right();
+                goodToGo = true;
             }
         }
 
-        if let Some(bottom) = bottom {
-            bottom + 1 + self.config.border_padding
-        } else {
-            0
+        return Tuple!(goodToGo, right + 1 + this.config.border_padding);
+    }
+
+    Tuple!(bool, uint) height() {
+        uint bottom = 0;
+        bool goodToGo = false;
+
+        foreach (Frame frame; this.frames) {
+            if (frame.frame.bottom() > bottom) {
+                bottom = frame.frame.bottom();
+                goodToGo = true;
+            }
         }
+
+        return Tuple!(goodToGo, bottom + 1 + this.config.border_padding);
     }
 
     fn get(&self, x: u32, y: u32) -> Option<Pix> {
@@ -262,3 +242,4 @@ mod tests {
         MyPacker { _packer: packer };
     }
 }
+*/
