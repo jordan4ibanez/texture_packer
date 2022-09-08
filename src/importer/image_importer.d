@@ -11,6 +11,6 @@ struct ImageImporter {
 
     /// Import an image from memory.
     TrueColorImage import_from_memory(ubyte[] buffer) {
-        loadImageFromMemory(cast(const(void)[]) buffer).getAsTrueColorImage();
+        return loadImageFromMemory(cast(const(void)[]) buffer).getAsTrueColorImage();
     }
 }
