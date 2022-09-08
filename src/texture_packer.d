@@ -40,7 +40,7 @@ struct TexturePacker {
 
 
     /// Pack the `texture` into this packer, taking a reference of the texture object.
-    void pack_ref(K key, ref TrueColorImage texture) {
+    void pack_ref(uint key, ref TrueColorImage texture) {
 
         Rect rect = Rect(0,0,texture.width(), texture.height());
 
@@ -51,9 +51,8 @@ struct TexturePacker {
 
         Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
 
-        this.packer.pack(key, rect);
-
-        Frame frame = Frame();
+        
+        Frame frame = this.packer.pack(key, rect);
         
         frame.frame.x += this.config.border_padding;
         frame.frame.y += this.config.border_padding;
@@ -69,33 +68,29 @@ struct TexturePacker {
     }
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
-    pub fn pack_own(&mut self, key: K, texture: T) -> PackResult<()> {
-        let rect = (&texture).into();
-        if !self.packer.can_pack(&rect) {
-            return Err(PackError::TextureTooLargeToFitIntoAtlas);
-        }
+    void pack_own(uint key, TrueColorImage texture) {
 
-        let (w, h) = (texture.width(), texture.height());
-        let source = if self.config.trim {
-            trim_texture(&texture)
-        } else {
-            Rect::new(0, 0, w, h)
-        };
+        Rect rect = Rect(0,0,texture.width(), texture.height());
 
-        let texture = SubTexture::new(texture, source);
-        let rect = (&texture).into();
-        if let Some(mut frame) = self.packer.pack(key.clone(), &rect) {
-            frame.frame.x += self.config.border_padding;
-            frame.frame.y += self.config.border_padding;
-            frame.trimmed = self.config.trim;
-            frame.source = source;
-            frame.source.w = w;
-            frame.source.h = h;
-            self.frames.insert(key.clone(), frame);
-        }
+        assert(this.packer.can_pack(rect), "TextureTooLargeToFitIntoAtlas");
 
-        self.textures.insert(key, texture);
-        Ok(())
+        uint w = texture.width();
+        uint h = texture.height();
+
+        Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
+
+        Frame frame = this.packer.pack(key.clone(), &rect);
+        
+        frame.frame.x += this.config.border_padding;
+        frame.frame.y += this.config.border_padding;
+        frame.trimmed = this.config.trim;
+        frame.source = source;
+        frame.source.w = w;
+        frame.source.h = h;
+
+        this.frames.insert(key, frame);
+
+        this.textures.insert(key, texture);
     }
 
     /// Get the backing mapping from strings to frames.
