@@ -64,21 +64,21 @@ struct Rect {
     }
 
     /// Check if this rectangle contains another.
-    pub fn contains(&self, other: &Rect) -> bool {
-        self.left() <= other.left()
-            && self.right() >= other.right()
-            && self.top() <= other.top()
-            && self.bottom() >= other.bottom()
+    bool contains(Rect other) {
+        return this.left() <= other.left()
+            && this.right() >= other.right()
+            && this.top() <= other.top()
+            && this.bottom() >= other.bottom();
     }
 
     /// Check if this rectangle contains a point. Includes the edges of the rectangle.
-    pub fn contains_point(&self, x: u32, y: u32) -> bool {
-        self.left() <= x && self.right() >= x && self.top() <= y && self.bottom() >= y
+    bool contains_point(uint x, uint y) {
+        return this.left() <= x && this.right() >= x && this.top() <= y && this.bottom() >= y;
     }
 
     /// Check if a point falls on the rectangle's boundaries.
-    pub fn is_outline(&self, x: u32, y: u32) -> bool {
-        x == self.left() || x == self.right() || y == self.top() || y == self.bottom()
+    bool is_outline(uint x, uint y) {
+        return x == this.left() || x == this.right() || y == this.top() || y == this.bottom();
     }
 
     /// Split two rectangles into non-overlapping regions.
