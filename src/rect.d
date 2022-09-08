@@ -109,30 +109,31 @@ struct Rect {
         // *******************
         //
 
-        let r1 = Rect::new_with_points(self.left(), self.top(), inside_x1, self.bottom());
-        if r1.area() > 0 {
-            result.push(r1);
+        Rect r1 = Rect.newWithPoints(this.left(), this.top(), inside_x1, this.bottom());
+        if (r1.area() > 0) {
+            result ~= r1;
         }
 
-        let r2 = Rect::new_with_points(inside_x2, self.top(), self.right(), self.bottom());
-        if r2.area() > 0 {
-            result.push(r2);
+        Rect r2 = Rect.newWithPoints(inside_x2, this.top(), this.right(), this.bottom());
+        if (r2.area() > 0) {
+            result ~= r2;
         }
 
-        let r3 = Rect::new_with_points(inside_x1, self.top(), inside_x2, inside_y1);
-        if r3.area() > 0 {
-            result.push(r3);
+        Rect r3 = Rect.newWithPoints(inside_x1, this.top(), inside_x2, inside_y1);
+        if (r3.area() > 0) {
+            result ~= r3;
         }
 
-        let r4 = Rect::new_with_points(inside_x1, inside_y2, inside_x2, self.bottom());
-        if r4.area() > 0 {
-            result.push(r4);
+        Rect r4 = Rect.newWithPoints(inside_x1, inside_y2, inside_x2, this.bottom());
+        if (r4.area() > 0) {
+            result ~= r4;
         }
 
-        result
+        return result;
     }
 }
 
+/*
 impl<T: Texture> From<&T> for Rect {
     fn from(item: &T) -> Self {
         Rect {
@@ -143,3 +144,4 @@ impl<T: Texture> From<&T> for Rect {
         }
     }
 }
+*/
