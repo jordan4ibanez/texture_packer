@@ -44,10 +44,7 @@ struct TexturePacker {
 
         Rect rect = Rect(0,0,texture.width(), texture.height());
 
-        if (!this.packer.can_pack(rect)) {
-            writeln("TextureTooLargeToFitIntoAtlas");
-            return;
-        }
+        assert(this.packer.can_pack(rect), "TextureTooLargeToFitIntoAtlas");
 
         uint w = texture.width();
         uint h = texture.height();
