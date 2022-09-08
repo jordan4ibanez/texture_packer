@@ -1,22 +1,19 @@
 module multi_texture_packer;
 
-use crate::{
-    texture::{Pixel, Texture},
-    texture_packer::{PackResult, TexturePacker},
-    texture_packer_config::TexturePackerConfig,
-};
-use std::hash::Hash;
+import texture_packer_config;
+import texture_packer;
 
 /// Texture packer supporting multiple atlases.
 ///
 /// Will create a new page for textures that do not fit. Textures packed after a new page is added
 /// will still attempt to check each page for available space.
-pub struct MultiTexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
-    config: TexturePackerConfig,
-    pages: Vec<TexturePacker<'a, T, K>>,
+struct MultiTexturePacker {
+
+    TexturePackerConfig config;
+    TexturePacker[] pages;
 
     /// Get an array of all underlying single-atlas texture packers.
-    pub fn get_pages(&self) -> &[TexturePacker<'a, T, K>] {
+    TexturePacker[] get_pages(&self) -> &[TexturePacker<'a, T, K>] {
         &self.pages
     }
 
