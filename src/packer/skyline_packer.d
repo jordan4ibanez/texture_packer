@@ -1,3 +1,5 @@
+module packer.skyline_packer;
+
 use crate::{frame::Frame, packer::Packer, rect::Rect, texture_packer_config::TexturePackerConfig};
 use std::cmp::max;
 
