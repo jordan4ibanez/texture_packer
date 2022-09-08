@@ -1,5 +1,7 @@
 module packer.skyline_packer;
 
+import std.array: insertInPlace;
+import std.algorithm.mutation: remove;
 import std.typecons: Tuple, tuple;
 import rect;
 import texture_packer_config;
@@ -101,29 +103,30 @@ struct SkylinePacker {
         return Tuple!(index, rect);
     }
 
-    fn split(&mut self, index: usize, rect: &Rect) {
-        let skyline = Skyline {
-            x: rect.left(),
-            y: rect.bottom() + 1,
-            w: rect.w,
-        };
+    fn split(uint index, Rect rect) {
+        Skyline skyline = Skyline(
+            rect.left(),
+            rect.bottom() + 1,
+            rect.w,
+        );
 
-        assert!(skyline.right() <= self.border.right());
-        assert!(skyline.y <= self.border.bottom());
+        assert(skyline.right() <= this.border.right());
+        assert(skyline.y <= this.border.bottom());
 
-        self.skylines.insert(index, skyline);
+        this.skylines.insertInPlace(index, skyline);
 
-        let i = index + 1;
-        while i < self.skylines.len() {
-            assert!(self.skylines[i - 1].left() <= self.skylines[i].left());
+        uint i = index + 1;
 
-            if self.skylines[i].left() <= self.skylines[i - 1].right() {
-                let shrink = self.skylines[i - 1].right() - self.skylines[i].left() + 1;
-                if self.skylines[i].w <= shrink {
-                    self.skylines.remove(i);
+        while (i < this.skylines.length()) {
+            assert(this.skylines[i - 1].left() <= this.skylines[i].left());
+
+            if (this.skylines[i].left() <= this.skylines[i - 1].right()) {
+                uint shrink = this.skylines[i - 1].right() - this.skylines[i].left() + 1;
+                if (this.skylines[i].w <= shrink) {
+                    this.skylines.remove(i);
                 } else {
-                    self.skylines[i].x += shrink;
-                    self.skylines[i].w -= shrink;
+                    this.skylines[i].x += shrink;
+                    this.skylines[i].w -= shrink;
                     break;
                 }
             } else {
