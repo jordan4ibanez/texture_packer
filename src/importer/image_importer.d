@@ -1,12 +1,7 @@
-use crate::importer::{ImportResult, Importer};
-use image::{self, DynamicImage};
-use std::path::Path;
+module importer.image_importer;
 
 /// Importer type for images.
-#[derive(Copy, Clone)]
-pub struct ImageImporter;
-
-impl ImageImporter {
+struct ImageImporter {
     /// Import an image from a path.
     pub fn import_from_file(file: &Path) -> ImportResult<DynamicImage> {
         <Self as Importer<&Path>>::import(file)
