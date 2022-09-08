@@ -82,34 +82,22 @@ struct Rect {
     }
 
     /// Split two rectangles into non-overlapping regions.
-    pub fn crop(&self, other: &Rect) -> Vec<Rect> {
-        if !self.intersects(other) {
-            return vec![*self];
+    Rect[] crop(Rect other) {
+        Rect[] result = new Rect[0];
+
+        if (!this.intersects(other)) {
+            result ~= this;
+            return result;
         }
 
-        let inside_x1 = if other.left() < self.left() {
-            self.left()
-        } else {
-            other.left()
-        };
 
-        let inside_y1 = if other.top() < self.top() {
-            self.top()
-        } else {
-            other.top()
-        };
+        uint inside_x1 = other.left() < this.left() ? this.left() : other.left();
 
-        let inside_x2 = if other.right() > self.right() {
-            self.right()
-        } else {
-            other.right()
-        };
+        uint inside_y1 = other.top() < this.top() ? this.top() : other.top();
 
-        let inside_y2 = if other.bottom() > self.bottom() {
-            self.bottom()
-        } else {
-            other.bottom()
-        };
+        uint inside_x2 = other.right() > this.right() ? this.right() : other.right();
+
+        uint inside_y2 = other.bottom() > this.bottom() ? this.bottom() : other.bottom();
 
         //
         // *******************
@@ -123,7 +111,6 @@ struct Rect {
         // *    | r4  |      *
         // *******************
         //
-        let mut result = Vec::new();
 
         let r1 = Rect::new_with_points(self.left(), self.top(), inside_x1, self.bottom());
         if r1.area() > 0 {
