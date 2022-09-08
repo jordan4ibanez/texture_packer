@@ -18,11 +18,8 @@ struct Rect {
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
-    this(uint x1, uint y1, uint x2, uint y2) {
-        this.x = x1;
-        this.y = y1;
-        this.w = x2 - x1 + 1;
-        this.h = y2 - y1 + 1;
+    static Rect newWithPoints(uint x1, uint y1, uint x2, uint y2) {
+        return Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
     }
 
     /// Get the top coordinate of the rectangle.
