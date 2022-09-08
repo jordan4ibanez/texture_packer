@@ -1,17 +1,16 @@
 module frame;
 
 /// Boundaries and properties of a packed texture.
-#[derive(Clone, Debug)]
-pub struct Frame<K> {
+struct Frame(K) {
     /// Key used to uniquely identify this frame.
-    pub key: K,
+    K key;
     /// Rectangle describing the texture coordinates and size.
-    pub frame: Rect,
+    Rect frame;
     /// True if the texture was rotated during packing.
     /// If it was rotated, it was rotated 90 degrees clockwise.
-    pub rotated: bool,
+    bool rotated = false;
     /// True if the texture was trimmed during packing.
-    pub trimmed: bool,
+    bool trimmed = false;
 
     // (x, y) is the trimmed frame position at original image
     // (w, h) is original image size
@@ -28,5 +27,5 @@ pub struct Frame<K> {
     //     |              |
     //     +--------------+
     /// Source texture size before any trimming.
-    pub source: Rect,
+    Rect source;
 }
