@@ -5,8 +5,9 @@ import std.algorithm.mutation: remove;
 import std.typecons: Tuple, tuple;
 import rect;
 import texture_packer_config;
+import frame;
 
-struct Skyline {
+struct Skyline(K) {
     uint x = 0;
     uint y = 0;
     uint w = 0;
@@ -135,10 +136,10 @@ struct SkylinePacker {
         }
     }
 
-    fn merge(&mut self) {
-        let mut i = 1;
-        while i < self.skylines.len() {
-            if self.skylines[i - 1].y == self.skylines[i].y {
+    void merge() {
+        uint i = 1;
+        while (i < this.skylines.length()) {
+            if (self.skylines[i - 1].y == self.skylines[i].y) {
                 self.skylines[i - 1].w += self.skylines[i].w;
                 self.skylines.remove(i);
                 i -= 1;
@@ -146,39 +147,42 @@ struct SkylinePacker {
             i += 1;
         }
     }
-}
 
-impl<K> Packer<K> for SkylinePacker {
-    fn pack(&mut self, key: K, texture_rect: &Rect) -> Option<Frame<K>> {
-        let mut width = texture_rect.w;
-        let mut height = texture_rect.h;
+    Frame pack(K key, Rect texture_rect) {
+        uint width = texture_rect.w;
+        uint height = texture_rect.h;
 
         width += self.config.texture_padding + self.config.texture_extrusion * 2;
         height += self.config.texture_padding + self.config.texture_extrusion * 2;
 
-        if let Some((i, mut rect)) = self.find_skyline(width, height) {
-            self.split(i, &rect);
-            self.merge();
+        Tuple!(uint, Rect) data = this.find_skyline(width, height);
+
+        uint i = data[0];
+        Rect rect = data[1];
+
+        if (rect.exists) {
+            this.split(i, rect);
+            this.merge();
 
             let rotated = width != rect.w;
 
             rect.w -= self.config.texture_padding + self.config.texture_extrusion * 2;
             rect.h -= self.config.texture_padding + self.config.texture_extrusion * 2;
 
-            Some(Frame {
+            return Frame(
                 key,
-                frame: rect,
+                rect,
                 rotated,
-                trimmed: false,
-                source: Rect {
-                    x: 0,
-                    y: 0,
-                    w: texture_rect.w,
-                    h: texture_rect.h,
-                },
-            })
+                false,
+                Rect (
+                    0,
+                    0,
+                    texture_rect.w,
+                    texture_rect.h,
+                )
+            );
         } else {
-            None
+            return Frame();
         }
     }
 
