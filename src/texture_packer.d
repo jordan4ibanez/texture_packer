@@ -1,42 +1,33 @@
 module texture_packer;
 
-use crate::{
-    frame::Frame,
-    packer::{Packer, SkylinePacker},
-    rect::Rect,
-    texture::{Pixel, SubTexture, Texture},
-    texture_packer_config::TexturePackerConfig,
-};
-use std::cmp::min;
-use std::collections::HashMap;
-use std::hash::Hash;
 
-pub type PackResult<T> = Result<T, PackError>;
+import frame;
+import packer.skyline_packer;
+import rect;
+import texture_packer_config;
+import image;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum PackError {
+// pub type PackResult<T> = Result<T, PackError>;
+
+enum PackError {
     TextureTooLargeToFitIntoAtlas,
 }
 
 /// Packs textures into a single texture atlas.
-pub struct TexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
-    textures: HashMap<K, SubTexture<'a, T>>,
-    frames: HashMap<K, Frame<K>>,
-    packer: Box<dyn Packer<K>>,
-    config: TexturePackerConfig,
-}
+struct TexturePacker(K) {
+    TrueColorImage[K] textures;
+    Frame[K]frames;
+    TexturePacker packer;
+    TexturePackerConfig config;
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
-    TexturePacker<'a, T, K>
-{
     /// Create a new packer using the skyline packing algorithm.
-    pub fn new_skyline(config: TexturePackerConfig) -> Self {
-        TexturePacker {
-            textures: HashMap::new(),
-            frames: HashMap::new(),
-            packer: Box::new(SkylinePacker::new(config)),
-            config,
-        }
+    static TexturePacker new_skyline(TexturePackerConfig config) {
+        return TexturePacker(
+            new TrueColorImage[K],
+            new Frame[K],
+            *new SkylinePacker(config),
+            config
+        );
     }
 }
 
