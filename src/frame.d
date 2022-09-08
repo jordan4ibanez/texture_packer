@@ -1,4 +1,4 @@
-use crate::rect::Rect;
+module frame;
 
 /// Boundaries and properties of a packed texture.
 #[derive(Clone, Debug)]
