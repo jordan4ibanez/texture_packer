@@ -1,4 +1,5 @@
 texture-packer [![Build Status]][Travis CI]
+Attempting to translate into D
 ========
 A texture packing library using the skyline heuristic. To test the sample code,
 run the code below from the project directory. **[Documentation]**
