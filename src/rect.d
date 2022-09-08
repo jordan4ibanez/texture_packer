@@ -14,7 +14,7 @@ struct Rect {
 
     /// Create a new [Rect] based on a position and its width and height.
     this(uint x, uint y, uint w, uint h) {
-        this.x = x; this.y = y; this.w = w; this.z = z;
+        this.x = x; this.y = y; this.w = w; this.h = h;
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
