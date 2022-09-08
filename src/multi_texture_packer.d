@@ -1,3 +1,5 @@
+module multi_texture_packer;
+
 use crate::{
     texture::{Pixel, Texture},
     texture_packer::{PackResult, TexturePacker},
