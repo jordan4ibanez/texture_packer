@@ -28,4 +28,15 @@ struct Frame(K) {
     //     +--------------+
     /// Source texture size before any trimming.
     Rect source;
+
+    bool exists = false;
+
+    this(K key, Rect frame, bool rotated, bool trimmed, Rect source) {
+        this.key = key;
+        this.frame = frame;
+        this.rotated = rotated;
+        this.trimmed = trimmed;
+        this.source = source;
+        this.exists = true;
+    }
 }
