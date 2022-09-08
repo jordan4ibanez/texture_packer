@@ -15,3 +15,4 @@ texture_packer-test-*
 *.o
 *.obj
 *.lst
+*.a
