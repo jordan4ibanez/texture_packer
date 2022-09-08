@@ -3,22 +3,22 @@ module rect;
 /// Defines a rectangle in pixels with the origin at the top-left of the texture atlas.
 struct Rect {
     /// Horizontal position the rectangle begins at.
-    uint x;
+    uint x = 0;
     /// Vertical position the rectangle begins at.
-    uint y;
+    uint y = 0;
     /// Width of the rectangle.
-    uint w;
+    uint w = 0;
     /// Height of the rectangle.
-    uint h;
+    uint h = 0;
 
 
     /// Create a new [Rect] based on a position and its width and height.
-    this(uint x, uint y, uint w, uint h) nothrow @safe {
+    this(uint x, uint y, uint w, uint h) {
         this.x = x; this.y = y; this.w = w; this.z = z;
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
-    this(uint x1, uint y1, uint x2, uint y2) nothrow @safe {
+    this(uint x1, uint y1, uint x2, uint y2) {
         this.x = x1;
         this.y = y1;
         this.w = x2 - x1 + 1;
@@ -26,41 +26,41 @@ struct Rect {
     }
 
     /// Get the top coordinate of the rectangle.
-    #[inline(always)]
-    pub fn top(&self) -> u32 {
-        self.y
+    pragma(inline)
+    uint top() {
+        return this.y;
     }
 
     /// Get the bottom coordinate of the rectangle.
-    #[inline(always)]
-    pub fn bottom(&self) -> u32 {
-        self.y + self.h - 1
+    pragma(inline)
+    uint bottom() {
+        return this.y + this.h - 1;
     }
 
     /// Get the left coordinate of the rectangle.
-    #[inline(always)]
-    pub fn left(&self) -> u32 {
-        self.x
+    pragma(inline)
+    uint left() {
+        return this.x;
     }
 
     /// Get the right coordinate of the rectangle.
-    #[inline(always)]
-    pub fn right(&self) -> u32 {
-        self.x + self.w - 1
+    pragma(inline)
+    uint right() {
+        return this.x + this.w - 1;
     }
 
     /// Get the area of the rectangle.
-    #[inline(always)]
-    pub fn area(&self) -> u32 {
-        self.w * self.h
+    pragma(inline)
+    uint area() {
+        return this.w * this.h;
     }
 
     /// Check if this rectangle intersects with another.
-    pub fn intersects(&self, other: &Rect) -> bool {
-        self.left() < other.right()
-            && self.right() > other.left()
-            && self.top() < other.bottom()
-            && self.bottom() > other.top()
+    bool intersects(Rect other) {
+        return this.left() < other.right()
+            && this.right() > other.left()
+            && this.top() < other.bottom()
+            && this.bottom() > other.top();
     }
 
     /// Check if this rectangle contains another.
