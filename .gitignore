@@ -1,2 +1,17 @@
 /target/
 /Cargo.lock
+.dub
+docs.json
+__dummy.html
+docs/
+/texture_packer
+texture_packer.so
+texture_packer.dylib
+texture_packer.dll
+texture_packer.a
+texture_packer.lib
+texture_packer-test-*
+*.exe
+*.o
+*.obj
+*.lst
