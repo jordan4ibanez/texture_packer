@@ -1,32 +1,28 @@
-use crate::texture::Texture;
+module rect;
 
 /// Defines a rectangle in pixels with the origin at the top-left of the texture atlas.
-#[derive(Copy, Clone, Debug)]
-pub struct Rect {
+struct Rect {
     /// Horizontal position the rectangle begins at.
-    pub x: u32,
+    uint x;
     /// Vertical position the rectangle begins at.
-    pub y: u32,
+    uint y;
     /// Width of the rectangle.
-    pub w: u32,
+    uint w;
     /// Height of the rectangle.
-    pub h: u32,
-}
+    uint h;
 
-impl Rect {
+
     /// Create a new [Rect] based on a position and its width and height.
-    pub fn new(x: u32, y: u32, w: u32, h: u32) -> Rect {
-        Rect { x, y, w, h }
+    this(uint x, uint y, uint w, uint h) nothrow @safe {
+        this.x = x; this.y = y; this.w = w; this.z = z;
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
-    pub fn new_with_points(x1: u32, y1: u32, x2: u32, y2: u32) -> Rect {
-        Rect {
-            x: x1,
-            y: y1,
-            w: x2 - x1 + 1,
-            h: y2 - y1 + 1,
-        }
+    this(uint x1, uint y1, uint x2, uint y2) nothrow @safe {
+        this.x = x1;
+        this.y = y1;
+        this.w = x2 - x1 + 1;
+        this.h = y2 - y1 + 1;
     }
 
     /// Get the top coordinate of the rectangle.
