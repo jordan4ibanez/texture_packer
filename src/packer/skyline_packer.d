@@ -23,7 +23,7 @@ struct Skyline(K) {
     }
 }
 
-struct SkylinePacker {
+struct SkylinePacker(K) {
     TexturePackerConfig config;
     Rect border;
 
@@ -186,19 +186,24 @@ struct SkylinePacker {
         }
     }
 
-    fn can_pack(&self, texture_rect: &Rect) -> bool {
-        if let Some((_, rect)) = self.find_skyline(
+    bool can_pack(Rect texture_rect) {
+        Tuple!(uint, Rect) data = self.find_skyline(
             texture_rect.w + self.config.texture_padding + self.config.texture_extrusion * 2,
             texture_rect.h + self.config.texture_padding + self.config.texture_extrusion * 2,
-        ) {
-            let skyline = Skyline {
-                x: rect.left(),
-                y: rect.bottom() + 1,
-                w: rect.w,
-            };
+        );
+
+        Rect rect = data[1];
+        
+        if (rect.exists){
+            Skyline skyline = Skyline(
+                rect.left(),
+                rect.bottom() + 1,
+                rect.w,
+            );
 
             return skyline.right() <= self.border.right() && skyline.y <= self.border.bottom();
         }
-        false
+
+        return false;
     }
 }
