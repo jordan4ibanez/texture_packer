@@ -70,14 +70,12 @@ struct SkylinePacker {
         uint bottom = uint.max;
         uint width = uint.max;
         uint index = 0;
-        Rect rect;
-
-        Rect r;
+        Rect rect = Rect(0,0,0,0);
 
         // keep the `bottom` and `width` as small as possible
         for (uint i = 0; i < this.skylines.length; i++) {
             
-            r = this.can_put(i, w, h);
+            Rect r = this.can_put(i, w, h);
 
             if (r.exists) {
                 if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
@@ -151,8 +149,6 @@ struct SkylinePacker {
 
         uint i = data[0];
         Rect rect = data[1];
-
-        writeln("Found skyline! ", i, " ", rect);
 
         assert(rect.exists);
         

@@ -8,6 +8,7 @@ import image;
 import std.typecons: tuple, Tuple;
 import std.array: insertInPlace;
 import std.stdio;
+import std.algorithm.comparison: min;
 
 // pub type PackResult<T> = Result<T, PackError>;
 
@@ -49,9 +50,13 @@ struct TexturePacker {
         uint w = texture.width();
         uint h = texture.height();
 
-        Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
+        Rect source;
+        if (this.config.trim) {
+            source = trim_texture(texture);
+        } else {
+            source = Rect(0,0,w,h);
+        }
 
-        
         Frame frame = this.packer.pack(key, rect);
         
         frame.frame.x += this.config.border_padding;
@@ -78,7 +83,14 @@ struct TexturePacker {
         uint w = texture.width();
         uint h = texture.height();
 
-        Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
+        Rect source;
+
+        writeln(this.config.trim);
+        if (this.config.trim) {
+            source = trim_texture(texture);
+        } else {
+            source = Rect(0,0,w,h);
+        }
 
         Frame frame = this.packer.pack(key, rect);
         
@@ -113,8 +125,8 @@ struct TexturePacker {
 
             Rect rect = frame.frame;
 
-            rect.x = rect.x - extrusion;
-            rect.y = rect.y - extrusion;
+            rect.x -= extrusion;
+            rect.y -= extrusion;
 
             rect.w += extrusion * 2;
             rect.h += extrusion * 2;
@@ -153,19 +165,29 @@ struct TexturePacker {
     }
 
     Color get(uint x, uint y) {
-        
-        Color colorData = Color(0,0,0,0);
 
         Frame frame = this.get_frame_at(x, y);
 
-        // Nothing
-        if (this.config.texture_outlines && frame.frame.is_outline(x, y)) {
-            return colorData;
+        Color colorData = Color(0,0,0,0);
+
+        if (frame.exists) {
+
+
+            // An outline - black
+            if (this.config.texture_outlines && frame.frame.is_outline(x, y)) {
+                return Color(255,0,0,255);
+            }        
+
+            TrueColorImage texture = this.textures[frame.key];
+
+            x -= frame.frame.x;
+            y -= frame.frame.y;
+
+            x = min(x, texture.width() - 1);
+            y = min(y, texture.height() - 1);
+
+            colorData = texture.getPixel(x, y);
         }
-
-        TrueColorImage image = this.textures[frame.key];
-
-        colorData = image.getPixel(x - frame.frame.x, y - frame.frame.y);
 
         return colorData;
     }
@@ -197,10 +219,12 @@ struct TexturePacker {
         for (uint x = 0; x < textureWidth; x++){
 
             bool columnTransparent = true;
-            uint xClone = textureWidth - x - 1;
+
+            x = textureWidth - x - 1;
+
 
             for (uint y = 0; y < textureHeight; y++) {
-                if (texture.getPixel(xClone,y).a > 0) {
+                if (texture.getPixel(x,y).a > 0) {
                     columnTransparent = false;
                 }
             }  
@@ -236,10 +260,10 @@ struct TexturePacker {
         for (uint y = 0; y < textureHeight; y++) {
 
             bool rowTransparent = true;
-            uint yClone = textureHeight - y - 1;
+            y = textureHeight - y - 1;
 
             for (uint x = 0; x < textureWidth; x++) {
-                if (texture.getPixel(x,yClone).a > 0) {
+                if (texture.getPixel(x,y).a > 0) {
                     rowTransparent = false;
                 }
             }
@@ -251,6 +275,7 @@ struct TexturePacker {
             }
         }
 
-        return Rect.newWithPoints(x1, y1, x2, y2);
+
+        return Rect.newWithPoints(x1,y1,x2,y2);
     }
 }
