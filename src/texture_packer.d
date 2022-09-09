@@ -165,7 +165,7 @@ struct TexturePacker {
             return colorData;
         }
 
-        TrueColorImage image = this.textures.get(frame.key);
+        TrueColorImage image = this.textures[frame.key];
 
         colorData = image.getPixel(x - frame.frame.x, y - frame.frame.y);
 
@@ -174,61 +174,82 @@ struct TexturePacker {
 
     Rect trim_texture(TrueColorImage texture) {
 
-        let mut x1 = 0;
-        for x in 0..texture.width() {
-            if texture.is_column_transparent(x) {
+        uint x1 = 0;
+
+        for (uint x = 0; x < texture.width(); x++){
+            bool columnTransparent = true;
+
+            for (uint y = 0; y < texture.height(); y++) {
+                if (texture.getPixel(x,y).a > 0) {
+                    columnTransparent = false;
+                }
+            }          
+            if (columnTransparent) {
                 x1 = x + 1;
             } else {
                 break;
             }
         }
 
-        let mut x2 = texture.width() - 1;
-        for x in 0..texture.width() {
-            let x = texture.width() - x - 1;
-            if texture.is_column_transparent(x) {
+        uint x2 = texture.width() - 1;
+
+        for (uint x = 0; x < texture.width(); x++){
+
+            bool columnTransparent = true;
+            uint xClone = texture.width() - x - 1;
+
+            for (uint y = 0; y < texture.height(); y++) {
+                if (texture.getPixel(xClone,y).a > 0) {
+                    columnTransparent = false;
+                }
+            }  
+
+            if (columnTransparent) {
                 x2 = x - 1;
             } else {
                 break;
             }
         }
 
-        let mut y1 = 0;
-        for y in 0..texture.height() {
-            if texture.is_row_transparent(y) {
+        uint y1 = 0;
+
+        for (uint y = 0; y < texture.height(); y++) {
+
+            bool rowTransparent = true;
+
+            for (uint x = 0; x < texture.width(); x++) {
+                if (texture.getPixel(x,y).a > 0) {
+                    rowTransparent = false;
+                }
+            }
+
+            if (rowTransparent) {
                 y1 = y + 1;
             } else {
                 break;
             }
         }
 
-        let mut y2 = texture.height() - 1;
-        for y in 0..texture.height() {
-            let y = texture.height() - y - 1;
-            if texture.is_row_transparent(y) {
+        uint y2 = texture.height() - 1;
+
+        for (uint y = 0; y < texture.height(); y++) {
+
+            bool rowTransparent = true;
+            uint yClone = texture.height() - y - 1;
+
+            for (uint x = 0; x < texture.width(); x++) {
+                if (texture.getPixel(x,yClone).a > 0) {
+                    rowTransparent = false;
+                }
+            }
+
+            if (rowTransparent) {
                 y2 = y - 1;
             } else {
                 break;
             }
         }
-        Rect::new_with_points(x1, y1, x2, y2)
+
+        return Rect.newWithPoints(x1, y1, x2, y2);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::texture::memory_rgba8_texture::MemoryRGBA8Texture;
-
-    #[test]
-    fn able_to_store_in_struct() {
-        let packer = TexturePacker::new_skyline(TexturePackerConfig::default());
-
-        struct MyPacker<'a> {
-            _packer: TexturePacker<'a, MemoryRGBA8Texture, String>,
-        }
-
-        MyPacker { _packer: packer };
-    }
-}
-*/
