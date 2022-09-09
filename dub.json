@@ -4,7 +4,9 @@
 	],
 	"copyright": "Copyright © 2022, jordan4ibanez",
 	"dependencies": {
-		"arsd-official:image_files": "~>10.9.2"
+		"arsd-official:color_base": "~>10.9.2",
+		"arsd-official:image_files": "~>10.9.2",
+		"arsd-official:png": "~>10.9.2"
 	},
 	"description": "A minimal D application.",
 	"license": "MIT",
