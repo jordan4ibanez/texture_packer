@@ -4,7 +4,7 @@ import texture_packer;
 import image;
 
 /// Export a memory texture packer to a TrueTypeImage.
-TrueColorImage exportToImage(TexturePacker packer) {
+void exportToImage(TexturePacker packer) {
 
     uint width = packer.width();
     uint height = packer.height();
@@ -13,7 +13,7 @@ TrueColorImage exportToImage(TexturePacker packer) {
 
 
 
-    TrueColorImage newImage = TrueColorImage(width, height);
+    TrueColorImage newImage = new TrueColorImage(width, height);
 
     /*
 
