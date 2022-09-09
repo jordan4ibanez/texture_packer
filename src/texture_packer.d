@@ -22,14 +22,13 @@ struct TexturePacker {
     SkylinePacker packer;
     TexturePackerConfig config;
 
+    this(TexturePackerConfig config) {
+        this.config = config;
+    }
+
     /// Create a new packer using the skyline packing algorithm.
     static TexturePacker new_skyline(TexturePackerConfig config) {
-        return TexturePacker(
-            new TrueColorImage[string],
-            new Frame[string],
-            *new SkylinePacker(config),
-            config
-        );
+        return TexturePacker(config);
     }
 
     /// Check if the texture can be packed into this packer.
@@ -61,9 +60,9 @@ struct TexturePacker {
         frame.source.w = w;
         frame.source.h = h;
 
-        this.frames.insertInPlace(key, frame);
+        this.frames[key] = frame;
 
-        this.textures.insertInPlace(key, texture);
+        this.textures[key] = texture;
 
     }
 
@@ -79,7 +78,7 @@ struct TexturePacker {
 
         Rect source = this.config.trim ? trim_texture(texture) : Rect(0,0,w,h);
 
-        Frame frame = this.packer.pack(key.clone(), &rect);
+        Frame frame = this.packer.pack(key, rect);
         
         frame.frame.x += this.config.border_padding;
         frame.frame.y += this.config.border_padding;
@@ -88,9 +87,9 @@ struct TexturePacker {
         frame.source.w = w;
         frame.source.h = h;
 
-        this.frames.insert(key, frame);
+        this.frames[key] = frame;
 
-        this.textures.insert(key, texture);
+        this.textures[key] = texture;
     }
 
     /// Get the backing mapping from strings to frames.
@@ -138,7 +137,7 @@ struct TexturePacker {
             }
         }
 
-        return Tuple!(goodToGo, right + 1 + this.config.border_padding);
+        return tuple(goodToGo, right + 1 + this.config.border_padding);
     }
 
     Tuple!(bool, uint) height() {
@@ -152,39 +151,30 @@ struct TexturePacker {
             }
         }
 
-        return Tuple!(goodToGo, bottom + 1 + this.config.border_padding);
+        return tuple(goodToGo, bottom + 1 + this.config.border_padding);
     }
 
-    fn get(&self, x: u32, y: u32) -> Option<Pix> {
+    ubyte get(uint x, uint y) {
+        /*
         if let Some(frame) = self.get_frame_at(x, y) {
             if self.config.texture_outlines && frame.frame.is_outline(x, y) {
                 return Some(<Pix as Pixel>::outline());
             }
 
             if let Some(texture) = self.textures.get(&frame.key) {
-                let x = x.saturating_sub(frame.frame.x);
-                let y = y.saturating_sub(frame.frame.y);
-
-                return if frame.rotated {
-                    let x = min(x, texture.height() - 1);
-                    let y = min(y, texture.width() - 1);
-                    texture.get_rotated(x, y)
-                } else {
-                    let x = min(x, texture.width() - 1);
-                    let y = min(y, texture.height() - 1);
-                    texture.get(x, y)
-                };
+                let x = x - frame.frame.x;
+                let y = y - frame.frame.y;
             }
         }
 
         None
-    }
+        */
 
-    fn set(&mut self, _x: u32, _y: u32, _val: Pix) {
-        panic!("Can't set pixel directly");
+        return 0;
     }
 }
 
+/*
 fn trim_texture<T: Texture>(texture: &T) -> Rect {
     let mut x1 = 0;
     for x in 0..texture.width() {

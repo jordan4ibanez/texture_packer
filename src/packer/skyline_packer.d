@@ -3,11 +3,12 @@ module packer.skyline_packer;
 import std.array: insertInPlace;
 import std.algorithm.mutation: remove;
 import std.typecons: Tuple, tuple;
+import std.algorithm.comparison: max;
 import rect;
 import texture_packer_config;
 import frame;
 
-struct Skyline(K) {
+struct Skyline {
     uint x = 0;
     uint y = 0;
     uint w = 0;
@@ -23,7 +24,7 @@ struct Skyline(K) {
     }
 }
 
-struct SkylinePacker(K) {
+struct SkylinePacker {
     TexturePackerConfig config;
     Rect border;
 
@@ -31,7 +32,6 @@ struct SkylinePacker(K) {
     Skyline[] skylines;
 
     this(TexturePackerConfig config) {
-        skylines = new Skyline[0];
 
         skylines ~= Skyline(
             0,
@@ -60,7 +60,7 @@ struct SkylinePacker(K) {
             }
             width_left -= this.skylines[i].w;
             i += 1;
-            assert(i < this.skylines.len());
+            assert(i < this.skylines.length);
         }
     }
 
@@ -73,14 +73,14 @@ struct SkylinePacker(K) {
         Rect r;
 
         // keep the `bottom` and `width` as small as possible
-        for (uint i = 0; i < this.skylines.length(); i++) {
+        for (uint i = 0; i < this.skylines.length; i++) {
             
             r = this.can_put(i, h, w);
 
             if (r.exists) {
                 if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
                     bottom = r.bottom();
-                    width = self.skylines[i].w;
+                    width = this.skylines[i].w;
                     index = i;
                     rect = r;
                 }
@@ -101,10 +101,10 @@ struct SkylinePacker(K) {
             }
         }
 
-        return Tuple!(index, rect);
+        return tuple(index, rect);
     }
 
-    fn split(uint index, Rect rect) {
+    void split(uint index, Rect rect) {
         Skyline skyline = Skyline(
             rect.left(),
             rect.bottom() + 1,
@@ -118,7 +118,7 @@ struct SkylinePacker(K) {
 
         uint i = index + 1;
 
-        while (i < this.skylines.length()) {
+        while (i < this.skylines.length) {
             assert(this.skylines[i - 1].left() <= this.skylines[i].left());
 
             if (this.skylines[i].left() <= this.skylines[i - 1].right()) {
@@ -138,22 +138,22 @@ struct SkylinePacker(K) {
 
     void merge() {
         uint i = 1;
-        while (i < this.skylines.length()) {
-            if (self.skylines[i - 1].y == self.skylines[i].y) {
-                self.skylines[i - 1].w += self.skylines[i].w;
-                self.skylines.remove(i);
+        while (i < this.skylines.length) {
+            if (this.skylines[i - 1].y == this.skylines[i].y) {
+                this.skylines[i - 1].w += this.skylines[i].w;
+                this.skylines.remove(i);
                 i -= 1;
             }
             i += 1;
         }
     }
 
-    Frame pack(K key, Rect texture_rect) {
+    Frame pack(string key, Rect texture_rect) {
         uint width = texture_rect.w;
         uint height = texture_rect.h;
 
-        width += self.config.texture_padding + self.config.texture_extrusion * 2;
-        height += self.config.texture_padding + self.config.texture_extrusion * 2;
+        width += this.config.texture_padding + this.config.texture_extrusion * 2;
+        height += this.config.texture_padding + this.config.texture_extrusion * 2;
 
         Tuple!(uint, Rect) data = this.find_skyline(width, height);
 
@@ -164,10 +164,10 @@ struct SkylinePacker(K) {
             this.split(i, rect);
             this.merge();
 
-            let rotated = width != rect.w;
+            bool rotated = width != rect.w;
 
-            rect.w -= self.config.texture_padding + self.config.texture_extrusion * 2;
-            rect.h -= self.config.texture_padding + self.config.texture_extrusion * 2;
+            rect.w -= this.config.texture_padding + this.config.texture_extrusion * 2;
+            rect.h -= this.config.texture_padding + this.config.texture_extrusion * 2;
 
             return Frame(
                 key,
@@ -187,9 +187,9 @@ struct SkylinePacker(K) {
     }
 
     bool can_pack(Rect texture_rect) {
-        Tuple!(uint, Rect) data = self.find_skyline(
-            texture_rect.w + self.config.texture_padding + self.config.texture_extrusion * 2,
-            texture_rect.h + self.config.texture_padding + self.config.texture_extrusion * 2,
+        Tuple!(uint, Rect) data = this.find_skyline(
+            texture_rect.w + this.config.texture_padding + this.config.texture_extrusion * 2,
+            texture_rect.h + this.config.texture_padding + this.config.texture_extrusion * 2,
         );
 
         Rect rect = data[1];
@@ -201,7 +201,7 @@ struct SkylinePacker(K) {
                 rect.w,
             );
 
-            return skyline.right() <= self.border.right() && skyline.y <= self.border.bottom();
+            return skyline.right() <= this.border.right() && skyline.y <= this.border.bottom();
         }
 
         return false;

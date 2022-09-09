@@ -1,9 +1,11 @@
 module frame;
 
+import rect;
+
 /// Boundaries and properties of a packed texture.
-struct Frame(K) {
+struct Frame {
     /// Key used to uniquely identify this frame.
-    K key;
+    string key;
     /// Rectangle describing the texture coordinates and size.
     Rect frame;
     /// True if the texture was rotated during packing.
@@ -31,7 +33,7 @@ struct Frame(K) {
 
     bool exists = false;
 
-    this(K key, Rect frame, bool rotated, bool trimmed, Rect source) {
+    this(string key, Rect frame, bool rotated, bool trimmed, Rect source) {
         this.key = key;
         this.frame = frame;
         this.rotated = rotated;
