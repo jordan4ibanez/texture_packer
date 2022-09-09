@@ -1,24 +1,11 @@
-use crate::{
-    exporter::{ExportResult, Exporter},
-    texture::Texture,
-};
-use image::{DynamicImage, ImageBuffer, Rgba};
-use std::marker::PhantomData;
+module exporter.image_exporter;
 
-/// Exporter type for images.
-#[derive(Copy, Clone)]
-pub struct ImageExporter<T>(PhantomData<T>);
 
-impl<T: Texture<Pixel = Rgba<u8>>> ImageExporter<T> {
-    /// Export a texture to an image type.
-    pub fn export(texture: &T) -> ExportResult<DynamicImage> {
-        <Self as Exporter<T>>::export(texture)
-    }
-}
 
-impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
-    type Output = DynamicImage;
+struct ImageExporter {
 
+
+    /// Export a memory texture packer to a TrueTypeImage.
     fn export(texture: &T) -> ExportResult<DynamicImage> {
         let width = texture.width();
         let height = texture.height();
@@ -53,4 +40,5 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
             Err("Can't export texture".to_string())
         }
     }
+
 }
