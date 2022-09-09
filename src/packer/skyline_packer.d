@@ -40,6 +40,7 @@ struct SkylinePacker {
         );
 
         border = Rect(0, 0, config.max_width, config.max_height);
+        this.config = config;
     }
 
     // return `rect` if rectangle (w, h) can fit the skyline started at `i`
@@ -187,6 +188,7 @@ struct SkylinePacker {
     }
 
     bool can_pack(Rect texture_rect) {
+
         Tuple!(uint, Rect) data = this.find_skyline(
             texture_rect.w + this.config.texture_padding + this.config.texture_extrusion * 2,
             texture_rect.h + this.config.texture_padding + this.config.texture_extrusion * 2,
