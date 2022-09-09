@@ -7,6 +7,7 @@ import texture_packer_config;
 import image;
 import std.typecons: tuple, Tuple;
 import std.array: insertInPlace;
+import std.stdio;
 
 // pub type PackResult<T> = Result<T, PackError>;
 
@@ -69,7 +70,8 @@ struct TexturePacker {
     /// Pack the `texture` into this packer, taking ownership of the texture object.
     void pack_own(string key, TrueColorImage texture) {
 
-        Rect rect = Rect(0,0,texture.width(), texture.height());
+        writeln("packing ", key);
+        Rect rect = Rect(0,0,texture.width(), texture.height());     
 
         assert(this.packer.can_pack(rect), "TextureTooLargeToFitIntoAtlas");
 
@@ -170,12 +172,15 @@ struct TexturePacker {
 
     Rect trim_texture(TrueColorImage texture) {
 
+        uint textureWidth = texture.width();
+        uint textureHeight = texture.height();
+
         uint x1 = 0;
 
-        for (uint x = 0; x < texture.width(); x++){
+        for (uint x = 0; x < textureWidth; x++){
             bool columnTransparent = true;
 
-            for (uint y = 0; y < texture.height(); y++) {
+            for (uint y = 0; y < textureHeight; y++) {
                 if (texture.getPixel(x,y).a > 0) {
                     columnTransparent = false;
                 }
@@ -187,14 +192,14 @@ struct TexturePacker {
             }
         }
 
-        uint x2 = texture.width() - 1;
+        uint x2 = textureWidth - 1;
 
-        for (uint x = 0; x < texture.width(); x++){
+        for (uint x = 0; x < textureWidth; x++){
 
             bool columnTransparent = true;
-            uint xClone = texture.width() - x - 1;
+            uint xClone = textureWidth - x - 1;
 
-            for (uint y = 0; y < texture.height(); y++) {
+            for (uint y = 0; y < textureHeight; y++) {
                 if (texture.getPixel(xClone,y).a > 0) {
                     columnTransparent = false;
                 }
@@ -209,11 +214,11 @@ struct TexturePacker {
 
         uint y1 = 0;
 
-        for (uint y = 0; y < texture.height(); y++) {
+        for (uint y = 0; y < textureHeight; y++) {
 
             bool rowTransparent = true;
 
-            for (uint x = 0; x < texture.width(); x++) {
+            for (uint x = 0; x < textureWidth; x++) {
                 if (texture.getPixel(x,y).a > 0) {
                     rowTransparent = false;
                 }
@@ -226,14 +231,14 @@ struct TexturePacker {
             }
         }
 
-        uint y2 = texture.height() - 1;
+        uint y2 = textureHeight - 1;
 
-        for (uint y = 0; y < texture.height(); y++) {
+        for (uint y = 0; y < textureHeight; y++) {
 
             bool rowTransparent = true;
-            uint yClone = texture.height() - y - 1;
+            uint yClone = textureHeight - y - 1;
 
-            for (uint x = 0; x < texture.width(); x++) {
+            for (uint x = 0; x < textureWidth; x++) {
                 if (texture.getPixel(x,yClone).a > 0) {
                     rowTransparent = false;
                 }
