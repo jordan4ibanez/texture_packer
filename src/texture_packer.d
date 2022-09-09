@@ -1,6 +1,5 @@
 module texture_packer;
 
-
 import frame;
 import packer.skyline_packer;
 import rect;
@@ -24,6 +23,7 @@ struct TexturePacker {
 
     this(TexturePackerConfig config) {
         this.config = config;
+        this.packer = SkylinePacker(config);
     }
 
     /// Create a new packer using the skyline packing algorithm.
