@@ -19,27 +19,18 @@ TrueColorImage exportToImage(TexturePacker packer) {
     // Build the new image, pixel by pixel
     TrueColorImage newImage = new TrueColorImage(width, height);
 
-    foreach (Frame frame; packer.frames) {
-        TrueColorImage frameImage = packer.textures[frame.key];
-
-        Rect realLocation = frame.frame;
-
-        //writeln("real location: ", realLocation);
-        //writeln("packer: ", width, " ", height);
-
-        if (realLocation.exists) {
-            for (int x = 0; x < realLocation.w; x++) {
-                for (int y = 0; y < realLocation.h; y++) {
-                    newImage.setPixel(
-                        x + realLocation.x,
-                        y + realLocation.y,
-                        frameImage.getPixel(x,y)
-                    );
-                }
-            }
-
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            newImage.setPixel(
+                x,
+                y,
+                packer.get(x,y)
+            );
         }
     }
+
+    
+    
 
     return newImage;
 }
