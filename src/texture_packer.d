@@ -154,23 +154,22 @@ struct TexturePacker {
         return tuple(goodToGo, bottom + 1 + this.config.border_padding);
     }
 
-    ubyte get(uint x, uint y) {
-        /*
-        if let Some(frame) = self.get_frame_at(x, y) {
-            if self.config.texture_outlines && frame.frame.is_outline(x, y) {
-                return Some(<Pix as Pixel>::outline());
-            }
+    Color get(uint x, uint y) {
+        
+        Color colorData; 
 
-            if let Some(texture) = self.textures.get(&frame.key) {
-                let x = x - frame.frame.x;
-                let y = y - frame.frame.y;
-            }
+        Frame frame = this.get_frame_at(x, y);
+
+        // Nothing
+        if (this.config.texture_outlines && frame.frame.is_outline(x, y)) {
+            return colorData;
         }
 
-        None
-        */
+        TrueColorImage image = this.textures.get(frame.key);
 
-        return 0;
+        colorData = image.getPixel(x - frame.frame.x, y - frame.frame.y);
+
+        return colorData;
     }
 }
 
