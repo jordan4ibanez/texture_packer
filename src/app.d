@@ -12,7 +12,8 @@ import arsd.png;
 
 void main() {
 
-    TexturePackerConfig config = TexturePackerConfig(400,400, false,2,0,0,true,true);
+    TexturePackerConfig config = TexturePackerConfig(400,400, true,0,0,0,true,true);
+
     TexturePacker packer = TexturePacker.new_skyline(config);
 
 
