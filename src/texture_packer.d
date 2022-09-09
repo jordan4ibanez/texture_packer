@@ -126,32 +126,28 @@ struct TexturePacker {
         return Frame();
     }
 
-    Tuple!(bool, uint) width() {
+    uint width() {
         uint right = 0;
-        bool goodToGo = false;
 
         foreach (Frame frame; this.frames){
             if (frame.frame.right() > right) {
                 right = frame.frame.right();
-                goodToGo = true;
             }
         }
 
-        return tuple(goodToGo, right + 1 + this.config.border_padding);
+        return right + 1 + this.config.border_padding;
     }
 
-    Tuple!(bool, uint) height() {
+    uint height() {
         uint bottom = 0;
-        bool goodToGo = false;
 
         foreach (Frame frame; this.frames) {
             if (frame.frame.bottom() > bottom) {
                 bottom = frame.frame.bottom();
-                goodToGo = true;
             }
         }
 
-        return tuple(goodToGo, bottom + 1 + this.config.border_padding);
+        return bottom + 1 + this.config.border_padding;
     }
 
     Color get(uint x, uint y) {
