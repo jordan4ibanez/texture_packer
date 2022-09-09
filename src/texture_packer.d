@@ -156,7 +156,7 @@ struct TexturePacker {
 
     Color get(uint x, uint y) {
         
-        Color colorData = Color();
+        Color colorData = Color(0,0,0,0);
 
         Frame frame = this.get_frame_at(x, y);
 
