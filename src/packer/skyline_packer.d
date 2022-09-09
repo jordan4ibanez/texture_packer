@@ -7,6 +7,7 @@ import std.algorithm.comparison: max;
 import rect;
 import texture_packer_config;
 import frame;
+import std.stdio;
 
 struct Skyline {
     uint x = 0;
@@ -76,7 +77,7 @@ struct SkylinePacker {
         // keep the `bottom` and `width` as small as possible
         for (uint i = 0; i < this.skylines.length; i++) {
             
-            r = this.can_put(i, h, w);
+            r = this.can_put(i, w, h);
 
             if (r.exists) {
                 if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
@@ -87,35 +88,23 @@ struct SkylinePacker {
                 }
             }
 
-            if (this.config.allow_rotation) {
-
-                r = this.can_put(i, h, w);
-
-                if (r.exists) {
-                    if (r.bottom() < bottom || (r.bottom() == bottom && this.skylines[i].w < width)) {
-                        bottom = r.bottom();
-                        width = this.skylines[i].w;
-                        index = i;
-                        rect = r;
-                    }
-                }
-            }
         }
 
         return tuple(index, rect);
     }
 
     void split(uint index, Rect rect) {
-        Skyline skyline = Skyline(
+        Skyline newSkyline = Skyline(
             rect.left(),
             rect.bottom() + 1,
-            rect.w,
+            rect.w
         );
 
-        assert(skyline.right() <= this.border.right());
-        assert(skyline.y <= this.border.bottom());
+        assert(newSkyline.right() <= this.border.right());
+        assert(newSkyline.y <= this.border.bottom());
 
-        this.skylines.insertInPlace(index, skyline);
+
+        this.skylines.insertInPlace(index, newSkyline);
 
         uint i = index + 1;
 
@@ -125,7 +114,7 @@ struct SkylinePacker {
             if (this.skylines[i].left() <= this.skylines[i - 1].right()) {
                 uint shrink = this.skylines[i - 1].right() - this.skylines[i].left() + 1;
                 if (this.skylines[i].w <= shrink) {
-                    this.skylines.remove(i);
+                    this.skylines = this.skylines.remove(i);
                 } else {
                     this.skylines[i].x += shrink;
                     this.skylines[i].w -= shrink;
@@ -142,7 +131,7 @@ struct SkylinePacker {
         while (i < this.skylines.length) {
             if (this.skylines[i - 1].y == this.skylines[i].y) {
                 this.skylines[i - 1].w += this.skylines[i].w;
-                this.skylines.remove(i);
+                this.skylines = this.skylines.remove(i);
                 i -= 1;
             }
             i += 1;
@@ -150,6 +139,7 @@ struct SkylinePacker {
     }
 
     Frame pack(string key, Rect texture_rect) {
+
         uint width = texture_rect.w;
         uint height = texture_rect.h;
 
@@ -158,33 +148,35 @@ struct SkylinePacker {
 
         Tuple!(uint, Rect) data = this.find_skyline(width, height);
 
+
         uint i = data[0];
         Rect rect = data[1];
 
-        if (rect.exists) {
-            this.split(i, rect);
-            this.merge();
+        writeln("Found skyline! ", i, " ", rect);
 
-            bool rotated = width != rect.w;
+        assert(rect.exists);
+        
+        
+        this.split(i, rect);
+        this.merge();
 
-            rect.w -= this.config.texture_padding + this.config.texture_extrusion * 2;
-            rect.h -= this.config.texture_padding + this.config.texture_extrusion * 2;
+        bool rotated = width != rect.w;
 
-            return Frame(
-                key,
-                rect,
-                rotated,
-                false,
-                Rect (
-                    0,
-                    0,
-                    texture_rect.w,
-                    texture_rect.h,
-                )
-            );
-        } else {
-            return Frame();
-        }
+        rect.w -= this.config.texture_padding + this.config.texture_extrusion * 2;
+        rect.h -= this.config.texture_padding + this.config.texture_extrusion * 2;
+
+        return Frame(
+            key,
+            rect,
+            rotated,
+            false,
+            Rect (
+                0,
+                0,
+                texture_rect.w,
+                texture_rect.h,
+            )
+        );
     }
 
     bool can_pack(Rect texture_rect) {
